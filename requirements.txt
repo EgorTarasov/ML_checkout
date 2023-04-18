@@ -1,5 +1,0 @@
-aiogram>=2.25.1
-sqlalchemy>=2.0.9
-psycopg2-binary>=2.9.5
-python-dotenv>=1.0.0
-apscheduler>=3.10.1
