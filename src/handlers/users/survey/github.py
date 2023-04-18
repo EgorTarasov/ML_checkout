@@ -12,7 +12,8 @@ async def process_github(message: types.Message, state: FSMContext):
         await message.answer("Такого ника нет в таблице")
     else:
         async with state.proxy() as data:
-            # get user data from db by id from message
+            # TODO: skip state if db_user.github != None
+            # TODO: find by fio
             db_user = session.query(User).filter_by(id=message.from_user.id).first()
             db_user.github = message.text
             db_user.fio = google_table_data[

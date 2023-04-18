@@ -16,11 +16,12 @@ dp = Dispatcher(bot, storage=storage)
 engine = create_engine(
     f"postgresql+psycopg2://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}@{config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DB}"
 )
+
 models.Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 google_table_data = pd.read_csv(config.GOOGLE_URL)
-print(google_table_data.columns)
+
 homeworks = [
     i for i in google_table_data.columns if "Домашние задание №" in i
 ]  # выбрали оценки по формату "Домашние задание №{number}"
