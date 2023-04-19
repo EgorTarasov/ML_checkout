@@ -2,7 +2,9 @@ import logging
 from aiogram import types
 from .states import StudentForm
 from aiogram.dispatcher import FSMContext
-from loader import dp, google_table_data, homeworks, teachers, Session, pd
+from loader import dp, google_table_data, homeworks, teachers, Session
+import pandas as pd
+from data.models import User, DefenseRecord
 
 
 @dp.message_handler(state=StudentForm.teacher)
@@ -13,7 +15,18 @@ async def process_teacher(message: types.Message, state: FSMContext):
         row = None
         async with state.proxy() as data:
             data["teacher"] = message.text
-            row = google_table_data[google_table_data["Ник на git"] == data["github"]]
+            try:
+                github = data["github"]
+            except KeyError:
+                session = Session()
+                db_user = (
+                    session.query(User).filter_by(id=message.from_user.id).one_or_none()
+                )
+                if db_user is None:
+                    await message.answer("Что-то пошло не так")
+                    return
+                github = db_user.github
+            row = google_table_data[google_table_data["Ник на git"] == github]
             homeworks_status = row[homeworks].values[0]
             response = ""
             last_task = None

@@ -53,9 +53,6 @@ async def send_queue(bot: Bot):
 async def add_shuffle_job(bot: Bot, scheduler: AsyncIOScheduler):
     # TODO: add 15 seconds delay for testing
     next_sunday = next_weekday(datetime.datetime.now(), 6)
-    # next_sunday.time = datetime.time(18, 0, 0)
-    next_sunday = next_sunday.replace(hour=18, minute=0)
-    
     scheduler.add_job(
         send_queue,
         trigger="date",

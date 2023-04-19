@@ -1,4 +1,4 @@
 from .states import StudentForm
-from .github import *
+from .auth import *
 from .teacher import *
 from .queue import *
