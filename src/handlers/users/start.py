@@ -1,8 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from loader import dp, Session
+from loader import dp, Session, log
 from data.models import User
-from .survey import StudentForm
+from .create_record import StudentForm
 from loader import dp, Session, teachers
 
 from aiogram.utils.markdown import hlink
@@ -10,6 +10,7 @@ from aiogram.utils.markdown import hlink
 
 @dp.message_handler(commands=["start"])
 async def send_welcome(message: types.Message):
+    log.info(f"User {message.from_user.id} {message.from_user.first_name} started bot")
     session = Session()
     userdata = dict(message.from_user)
     db_user = session.query(User).filter_by(id=message.from_user.id).one_or_none()
