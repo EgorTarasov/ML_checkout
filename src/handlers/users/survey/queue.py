@@ -10,7 +10,7 @@ import utils.scheduler
 
 @dp.message_handler(state=StudentForm.queue)
 async def process_queue(message: types.Message, state: FSMContext):
-    if not (message.text in ["Да", "Нет"]):
+    if not (message.text in ["Да", "Нет, как нибудь в другой раз"]):
         await message.answer("Ошибочка)")
     else:
         session = Session()
@@ -41,7 +41,7 @@ async def process_queue(message: types.Message, state: FSMContext):
                 session.add(db_record)
                 session.commit()
             await message.answer("Красава, в воскресение пришлем очередь")
+            await state.finish()
         else:
-
             await message.answer("Better luck next time!")
             await state.finish()
