@@ -3,4 +3,6 @@ venv/
 *.cfg
 __pycache__/
 .vscode/
+*.log
+*.sql
 ```

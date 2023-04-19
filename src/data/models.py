@@ -1,4 +1,5 @@
-from sqlalchemy import Integer, String, ForeignKey, Boolean
+import datetime
+from sqlalchemy import Integer, String, ForeignKey, Boolean, DATE
 from sqlalchemy.orm import (
     declarative_base,
     relationship,
@@ -26,7 +27,7 @@ class User(Base):
     github: Mapped[str] = mapped_column(String, nullable=True)
     fio: Mapped[str] = mapped_column(String, nullable=True)
 
-    defense_records: Mapped[list] = relationship(
+    defense_records: Mapped[list["DefenseRecord"]] = relationship(
         "DefenseRecord", back_populates="student"
     )
 
@@ -42,6 +43,7 @@ class DefenseRecord(Base):
     teacher: Mapped[str] = mapped_column(String)
     task: Mapped[str] = mapped_column(String)
     status: Mapped[bool] = mapped_column(Boolean)
+    date: Mapped[datetime.datetime] = mapped_column(DATE, nullable=True)
     additional_data: Mapped[str] = mapped_column(JSON, nullable=True)
 
     def __repr__(self) -> str:

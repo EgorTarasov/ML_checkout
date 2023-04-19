@@ -2,6 +2,6 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
 class StudentForm(StatesGroup):
-    github = State()
+    auth = State()
     teacher = State()
     queue = State()
