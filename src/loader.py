@@ -3,10 +3,11 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import pandas as pd
+
 
 from data import config
 from data import models
+from utils.table import update_table
 
 bot = Bot(token=config.API_TOKEN, parse_mode=types.ParseMode.HTML)
 storage = MemoryStorage()
@@ -20,7 +21,8 @@ engine = create_engine(
 models.Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
-google_table_data = pd.read_csv(config.GOOGLE_URL)
+google_table_data = update_table(config.GOOGLE_URL)
+
 
 homeworks = [
     i for i in google_table_data.columns if "Домашние задание №" in i
