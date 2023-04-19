@@ -37,7 +37,7 @@ async def send_welcome(message: types.Message):
         )
         reply_keyboard.add(*teachers)
         await message.answer(
-            "Какому преподавателю ты хочешь сдать домашку?",
+            "Ты уже авторизован.\nКакому преподавателю ты хочешь сдать домашку?",
             reply_markup=reply_keyboard,
         )
 
