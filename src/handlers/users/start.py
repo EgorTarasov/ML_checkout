@@ -25,7 +25,7 @@ async def send_welcome(message: types.Message):
             "https://docs.google.com/spreadsheets/d/1jIxeW8BcbeZcGmNm47tXzpGPVULhMvnOUYpNX3J2OF4/edit#gid=0",
         )
         await message.answer(
-            f"Привет!\nДля записи на сдачу работы надо указать ник в github, как в {table}.",
+            f"Привет!\nДля записи на сдачу работы надо указать ник в github или фамилию, как в {table}.\n<b>Ник можно указать только один раз, после авторизации его нельзя будет поменять!</b>\nНапиши 'Отмена' чтобы прервать запись в любой момент",
             disable_web_page_preview=True,
         )
     else:
