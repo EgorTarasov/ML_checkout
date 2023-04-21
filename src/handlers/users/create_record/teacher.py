@@ -26,7 +26,12 @@ async def process_teacher(message: types.Message, state: FSMContext):
                     await message.answer("Что-то пошло не так")
                     return
                 github = db_user.github
-            row = google_table_data[google_table_data["Ник на git"] == github]
+                fio = db_user.fio
+            row = None
+            if github is not None:
+                row = google_table_data[google_table_data["Ник на git"] == github]
+            else:
+                row = google_table_data[google_table_data["Фамилия"] == fio]
             homeworks_status = row[homeworks].values[0]
             response = ""
             last_task = None
