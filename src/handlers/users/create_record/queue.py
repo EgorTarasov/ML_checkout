@@ -10,7 +10,7 @@ import utils.scheduler
 
 @dp.message_handler(state=StudentForm.queue)
 async def process_queue(message: types.Message, state: FSMContext):
-    if not (message.text in ["Да", "Нет, как нибудь в другой раз"]):
+    if not (message.text in ["Да", "Нет"]):
         await message.answer("Ошибочка)")
     else:
         session = Session()
