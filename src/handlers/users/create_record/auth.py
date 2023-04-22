@@ -1,12 +1,15 @@
 from aiogram import types
 from .states import StudentForm
 from aiogram.dispatcher import FSMContext
-from loader import dp, google_table_data, Session, teachers
+from loader import dp, google_table_data, Session, teachers, log
 from data.models import User
 
 
 @dp.message_handler(state=StudentForm.auth)
 async def process_auth(message: types.Message, state: FSMContext):
+    log.info(
+        f"func: process_auth: {message.from_user.first_name}, {message.from_user.id}: {message.text}"
+    )
     session = Session()
     db_user = session.query(User).filter_by(id=message.from_user.id).one_or_none()
 

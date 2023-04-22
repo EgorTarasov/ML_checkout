@@ -1,14 +1,16 @@
-import logging
 from aiogram import types
 from .states import StudentForm
 from aiogram.dispatcher import FSMContext
-from loader import dp, google_table_data, homeworks, teachers, Session
+from loader import dp, google_table_data, homeworks, teachers, Session, log
 import pandas as pd
 from data.models import User, DefenseRecord
 
 
 @dp.message_handler(state=StudentForm.teacher)
 async def process_teacher(message: types.Message, state: FSMContext):
+    log.info(
+        f"func: process_teacher: {message.from_user.first_name}, {message.from_user.id}: {message.text}"
+    )
     if not message.text in teachers:
         await message.answer("Такого преподавателя нет в клавиатуре")
     else:
@@ -32,6 +34,9 @@ async def process_teacher(message: types.Message, state: FSMContext):
                 row = google_table_data[google_table_data["Ник на git"] == github]
             else:
                 row = google_table_data[google_table_data["Фамилия"] == fio]
+            log.debug(homeworks)
+            log.debug(row)
+            print(homeworks, row)
             homeworks_status = row[homeworks].values[0]
             response = ""
             last_task = None
