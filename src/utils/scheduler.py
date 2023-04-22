@@ -31,9 +31,9 @@ def make_shuffle(
     for task in priority:
         for student in tasks[task]:
             response += (
-                f"{index}) <b>{student.fio}</b>⬅️\n"
+                f"{index}) <b>{str(student.fio).title()}</b>⬅️\n"
                 if student.id == student_id
-                else f"{index}) {student.fio}\n"
+                else f"{index}) {str(student.fio).title()}\n"
             )
             index += 1
 
