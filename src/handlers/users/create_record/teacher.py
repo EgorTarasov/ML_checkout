@@ -49,7 +49,8 @@ async def process_teacher(message: types.Message, state: FSMContext):
                 resize_keyboard=True, one_time_keyboard=True
             )
             reply_keyboard.add("Да", "Нет")
-
+            # добавляем отмена, чтобы руками не писать
+            reply_keyboard.add("Отмена")
             await message.answer(response, reply_markup=reply_keyboard)
             await StudentForm.next()
         else:

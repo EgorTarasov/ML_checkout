@@ -38,7 +38,9 @@ async def send_welcome(message: types.Message):
         reply_keyboard = types.ReplyKeyboardMarkup(
             resize_keyboard=True, one_time_keyboard=True
         )
-        reply_keyboard.add(*teachers)
+        buttons = teachers
+        reply_keyboard.add(*buttons)
+        reply_keyboard.add("Отмена")
         await message.answer(
             "Ты уже авторизован.\nКакому преподавателю ты хочешь сдать домашку?",
             reply_markup=reply_keyboard,

@@ -40,8 +40,14 @@ async def process_queue(message: types.Message, state: FSMContext):
 
                 session.add(db_record)
                 session.commit()
-            await message.answer("Красава, в воскресение пришлем очередь")
+            await message.answer(
+                "Красава, в воскресение пришлем очередь",
+                reply_markup=types.ReplyKeyboardRemove(),
+            )
             await state.finish()
         else:
-            await message.answer("Better luck next time!")
+            await message.answer(
+                "Better luck next time!",
+                reply_markup=types.ReplyKeyboardRemove(),
+            )
             await state.finish()

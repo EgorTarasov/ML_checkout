@@ -35,12 +35,17 @@ async def process_auth(message: types.Message, state: FSMContext):
     session.add(db_user)
     session.commit()
     session.close()
-    log.info(f"func: process_auth: {message.from_user.first_name}, {message.from_user.id}: auth - success")
+    log.info(
+        f"func: process_auth: {message.from_user.first_name}, {message.from_user.id}: auth - success"
+    )
     await StudentForm.next()
     reply_keyboard = types.ReplyKeyboardMarkup(
         resize_keyboard=True, one_time_keyboard=True
     )
-    reply_keyboard.add(*teachers)
+    buttons = teachers + ["Отмена"]
+    reply_keyboard.add(*buttons)
+    # добавляем отмена, чтобы руками не писать
+
     await message.answer(
         "Какому преподавателю ты хочешь сдать домашку?",
         reply_markup=reply_keyboard,
