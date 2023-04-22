@@ -24,8 +24,9 @@ async def process_delete_choice(message: types.Message, state: FSMContext):
             .filter(DefenseRecord.date > datetime.datetime.now())
             .first()
         )
-        session.delete(record)
-        session.commit()
-        session.close()
+        if record:
+            session.delete(record)
+            session.commit()
+            session.close()
         await message.answer("Запись отменена")
         await state.finish()
