@@ -34,7 +34,7 @@ async def process_teacher(message: types.Message, state: FSMContext):
             response = ""
             last_task = None
             for name, value in zip(homeworks, homeworks_status):
-                if pd.isnull(value):
+                if pd.isnull(value) or type(value) == str:
                     last_task = name
                     break
                 else:
