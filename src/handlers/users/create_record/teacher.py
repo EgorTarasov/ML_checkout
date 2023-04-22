@@ -11,32 +11,25 @@ async def process_teacher(message: types.Message, state: FSMContext):
     log.info(
         f"func: process_teacher: {message.from_user.first_name}, {message.from_user.id}: {message.text}"
     )
+    session = Session()
+    db_user = session.query(User).filter_by(id=message.from_user.id).one_or_none()
+    if db_user is None:
+        await message.answer("Что-то пошло не так")
+        await state.finish()
+        return
+
     if not message.text in teachers:
         await message.answer("Такого преподавателя нет в клавиатуре")
     else:
-        row = None
+
         async with state.proxy() as data:
             data["teacher"] = message.text
             try:
-                github = data["github"]
+                fio = data["fio"]
             except KeyError:
-                session = Session()
-                db_user = (
-                    session.query(User).filter_by(id=message.from_user.id).one_or_none()
-                )
-                if db_user is None:
-                    await message.answer("Что-то пошло не так")
-                    return
-                github = db_user.github
                 fio = db_user.fio
-            row = None
-            if github is not None:
-                row = google_table_data[google_table_data["Ник на git"] == github]
-            else:
-                row = google_table_data[google_table_data["Фамилия"] == fio]
-            log.debug(homeworks)
-            log.debug(row)
-            print(homeworks, row)
+            log.info(f"func: process_teacher: fio: {fio}")
+            row = google_table_data[google_table_data["ФИО"] == fio]
             homeworks_status = row[homeworks].values[0]
             response = ""
             last_task = None
@@ -60,4 +53,6 @@ async def process_teacher(message: types.Message, state: FSMContext):
             await message.answer(response, reply_markup=reply_keyboard)
             await StudentForm.next()
         else:
+            response = "Ты уже сдал все домашки 🎉"
+            await message.answer(response, reply_markup=types.ReplyKeyboardRemove())
             await state.finish()

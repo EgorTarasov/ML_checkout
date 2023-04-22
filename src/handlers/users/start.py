@@ -27,6 +27,7 @@ async def send_welcome(message: types.Message):
         await message.answer(
             f"Привет!\nДля записи на сдачу работы надо указать ник в github или фамилию, как в {table}.\n<b>Ник можно указать только один раз, после авторизации его нельзя будет поменять!</b>\nНапиши 'Отмена' чтобы прервать запись в любой момент",
             disable_web_page_preview=True,
+            reply_markup=types.ReplyKeyboardRemove(),
         )
     else:
         db_user = User(**userdata)
