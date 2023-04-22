@@ -20,19 +20,6 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await message.answer("Хорошо, отеняем", reply_markup=types.ReplyKeyboardRemove())
 
 
-# @dp.message_handler(Text(equals="/cancel", ignore_case=True), state="*")
-# async def cancel_handler(message: types.Message, state: FSMContext):
-#     log.info(
-#         f"func: отмена: {message.from_user.first_name}, {message.from_user.id}: {message.text}"
-#     )
-#     current_state = await state.get_state()
-#     if current_state is None:
-#         return
-
-#     await state.finish()
-#     await message.answer("Хорошо, отеняем", reply_markup=types.ReplyKeyboardRemove())
-
-
 @dp.message_handler(commands=["help"], state="*")
 async def help_in_create_record(message: types.Message, state: FSMContext):
     log.info(

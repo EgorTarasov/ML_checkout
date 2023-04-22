@@ -21,7 +21,7 @@ async def send_welcome(message: types.Message):
         .one_or_none()
     )
     response = (
-        f"Ты уже записался на защиту {record.date.strftime('%d-%m')} \nзадание:{record.task}\n Точно хочешь отменить запись? "
+        f"Ты уже записался на защиту {record.date.strftime('%d-%m')} \n\n Точно хочешь отменить запись? "
         if record
         else "Ты еще не записался на защиту"
     )
