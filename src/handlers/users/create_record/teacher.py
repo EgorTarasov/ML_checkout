@@ -1,7 +1,9 @@
+from datetime import datetime, timedelta
 from aiogram import types
 from .states import StudentForm
 from aiogram.dispatcher import FSMContext
 from loader import dp, google_table_data, homeworks, teachers, Session, log
+from utils.scheduler import next_weekday
 import pandas as pd
 from data.models import User, DefenseRecord
 
@@ -24,6 +26,7 @@ async def process_teacher(message: types.Message, state: FSMContext):
 
         async with state.proxy() as data:
             data["teacher"] = message.text
+
             try:
                 fio = data["fio"]
             except KeyError:
@@ -40,16 +43,28 @@ async def process_teacher(message: types.Message, state: FSMContext):
                 else:
                     response += f"{name}: {value}\n"
             data["last_task"] = last_task
+            if last_task:
+                data["next_dates"] = [
+                    next_weekday(datetime.now(), 0),
+                    next_weekday(datetime.now() + timedelta(days=7), 0),
+                ]
 
         if last_task:
-            response = (
-                f"Ты можешь сдать {last_task} на следующем занятии\nЗаписываемся?"
-            )
+            # поменяй текст на
+            # response = (
+            #     f"Ты можешь сдать {last_task} на следующем занятии\nЗаписываемся?"
+            # )
+            response = f"Когда тебе будет удобно прийти на защиту? Выбери одну из предложенных дат."
             reply_keyboard = types.ReplyKeyboardMarkup(
                 resize_keyboard=True, one_time_keyboard=True
             )
-            reply_keyboard.add("Да", "Нет")
+            # reply_keyboard.add("Да", "Нет")
+            reply_keyboard.add(
+                next_weekday(datetime.now(), 0).strftime("%d.%m"),
+                next_weekday(datetime.now() + timedelta(days=7), 0).strftime("%d.%m"),
+            )
             # добавляем отмена, чтобы руками не писать
+            reply_keyboard.add("У меня не получится в эти даты")
             reply_keyboard.add("Отмена")
             await message.answer(response, reply_markup=reply_keyboard)
             await StudentForm.next()

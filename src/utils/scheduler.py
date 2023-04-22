@@ -3,7 +3,7 @@ from data.models import *
 from loader import Session
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from data import config
-from loader import teachers
+from loader import teachers, log
 from data.models import DefenseRecord
 import datetime
 
@@ -15,25 +15,27 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 
-def make_shuffle(records: list[DefenseRecord], next_date: str, teacher: str):
+def make_shuffle(
+    records: list[DefenseRecord], next_date: str, teacher: str, student_id: int
+):
     tasks = {}
     for r in records:
         if r.task in tasks:
-            tasks[r.task].append(r.student.fio)
+            tasks[r.task].append(r.student)
         else:
-            tasks[r.task] = [r.student.fio]
+            tasks[r.task] = [r.student]
     response_data = {task: len(tasks[task]) for task in tasks.keys()}
     priority = sorted(response_data, key=response_data.get, reverse=True)
     response = f"Очередь на следующий понедельник ({next_date.split('-')[2]}.{next_date.split('-')[1]}):\n{teacher}\n"
     index = 1
     for task in priority:
-        # response += f"{task}:\n"
         for student in tasks[task]:
-            # response += f"    {index + 1} - <b>{student}</b>\n"
-            response += f"{index}) <b>{student}</b> - {task}"
+            response += (
+                f"{index}) <b>{student.fio}</b>⬅️\n"
+                if student.id == student_id
+                else f"{index}) {student.fio}\n"
+            )
             index += 1
-
-        response += "\n\n"
 
     return response
 
@@ -50,11 +52,14 @@ async def send_queue(bot: Bot):
             )
             .all()
         )
-
-        response = make_shuffle(records, next_date, teacher)
-
         for record in records:
-            await bot.send_message(chat_id=record.student_id, text=response)
+            await bot.send_message(
+                chat_id=record.student.id,
+                text=make_shuffle(records, next_date, teacher, record.student_id),
+            )
+
+        # for record in records:
+        #     await bot.send_message(chat_id=record.student_id, text=response)
 
 
 async def add_shuffle_job(bot: Bot, scheduler: AsyncIOScheduler):

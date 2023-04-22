@@ -16,7 +16,7 @@ async def process_status(message: types.Message):
         .first()
     )
     response = (
-        f"Ты уже записался на защиту {record.date.strftime('%d-%m')} \nзадание:{record.task} "
+        f"Ты уже записался на защиту {record.date.strftime('%d-%m')} \n" # задание:{record.task} 
         if record
         else "Ты еще не записался на защиту"
     )
