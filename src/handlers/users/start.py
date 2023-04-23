@@ -1,10 +1,11 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from loader import dp, Session, log
-from data.models import User
+from data.models import User, DefenseRecord
+from aiogram.dispatcher.filters import Text
 from .create_record import StudentForm
-from loader import dp, Session, teachers
-
+from loader import dp, Session, teachers, google_table_data
+import datetime
 from aiogram.utils.markdown import hlink
 
 
@@ -45,3 +46,47 @@ async def send_welcome(message: types.Message):
             "Ты уже авторизован.\nКакому преподавателю ты хочешь сдать домашку?",
             reply_markup=reply_keyboard,
         )
+
+
+@dp.message_handler(Text(startswith="/shuffle_"))
+async def send_shuffle_to_admin(message: types.Message):
+    session = Session()
+    teacher = (
+        "Егоров" if message.text.split()[0].split("_")[1] == "egorov" else "Хасанова"
+    )
+    today = datetime.datetime.today().date().strftime("%Y-%m-%d")
+
+    last_names = message.text.split()[1:]
+    final_records = []
+    for last_name in last_names:
+        students_from_db = google_table_data[
+            google_table_data["Фамилия"] == last_name
+        ].values
+        # понять, как по этим фамилиями выбирать записи из бд
+        for student in students_from_db:
+            record_for_student = (
+                session.query(DefenseRecord)
+                .where(
+                    (DefenseRecord.teacher == teacher)
+                    & (DefenseRecord.date == today)
+                    & (DefenseRecord.student == student)  # вот тут выбираем <-
+                )
+                .first()
+            )
+            final_records.append(record_for_student)
+
+    log.debug(final_records)
+
+    next_monday = datetime.datetime.today() + datetime.timedelta(days=1)
+    # next_monday = next_monday.strftime("%Y-%m-%d")
+
+    response = f"Очередь на следующий понедельник ({next_monday.strftime('%d.%m')}:\n{teacher}\n"
+    # index = 1
+    # for student in students_from_db:
+    #     response += f"{index}) {str(student.fio).title()}\n"
+    #     index += 1
+
+    log.debug(teacher)
+    log.debug(last_names)
+
+    await message.answer(response)

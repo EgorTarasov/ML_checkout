@@ -39,7 +39,7 @@ class DefenseRecord(Base):
     __tablename__ = "defense_records"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     student_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    student: Mapped[User] = relationship("User", back_populates="defense_records")
+    student: Mapped["User"] = relationship("User", back_populates="defense_records")
     teacher: Mapped[str] = mapped_column(String)
     task: Mapped[str] = mapped_column(String)
     status: Mapped[bool] = mapped_column(Boolean)
