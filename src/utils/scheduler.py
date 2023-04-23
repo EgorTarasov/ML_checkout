@@ -53,23 +53,40 @@ async def send_queue(bot: Bot):
             .all()
         )
         for record in records:
-            await bot.send_message(
-                chat_id=record.student.id,
-                text=make_shuffle(records, next_date, teacher, record.student_id),
-            )
-
-        # for record in records:
-        #     await bot.send_message(chat_id=record.student_id, text=response)
+            if not config.BOT_MODE:
+                if record.student.is_admin:
+                    await bot.send_message(
+                        chat_id=record.student.id,
+                        text=make_shuffle(
+                            records, next_date, teacher, record.student_id
+                        ),
+                    )
+            else:
+                await bot.send_message(
+                    chat_id=record.student.id,
+                    text=make_shuffle(records, next_date, teacher, record.student_id),
+                )
 
 
 async def add_shuffle_job(bot: Bot, scheduler: AsyncIOScheduler):
-    # TODO: add 15 seconds delay for testing
-    next_sunday = next_weekday(datetime.datetime.now(), 6)
+    day = datetime.datetime.now()
+    if not (day.weekday() == 6 and day.hour < 18):
+        day = next_weekday(day, 0)
+
+    day = day.replace(hour=18, minute=0, second=0)
+
+    task_date = (
+        datetime.datetime.now() + datetime.timedelta(seconds=5)
+        if not config.BOT_MODE
+        else day
+    )
+    log.debug(f"режим бота:{config.BOT_MODE}")
+    log.info(
+        f"Добавляем задачу в планировщик на {task_date.strftime('%d.%m.%Y %H:%M:%S')}')"
+    )
     scheduler.add_job(
         send_queue,
         trigger="date",
-        run_date=datetime.datetime.now() + datetime.timedelta(seconds=8)
-        if config.BOT_MODE == "debug"
-        else next_sunday.date(),
+        run_date=task_date,
         kwargs={"bot": bot},
     )
