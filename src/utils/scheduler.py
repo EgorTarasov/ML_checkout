@@ -16,7 +16,11 @@ def next_weekday(d, weekday):
 
 
 def make_shuffle(
-    records: list[DefenseRecord], next_date: str, teacher: str, student_id: int
+    records: list[DefenseRecord],
+    next_date: str,
+    teacher: str,
+    student_id: int,
+    sort_order: str = "base",
 ):
     tasks = {}
     for r in records:
@@ -24,20 +28,42 @@ def make_shuffle(
             tasks[r.task].append(r.student)
         else:
             tasks[r.task] = [r.student]
-    response_data = {task: len(tasks[task]) for task in tasks.keys()}
-    priority = sorted(response_data, key=response_data.get, reverse=True)
-    response = f"Очередь на следующий понедельник ({next_date.split('-')[2]}.{next_date.split('-')[1]}):\n{teacher}\n"
-    index = 1
-    for task in priority:
-        for student in tasks[task]:
-            response += (
-                f"{index}) <b>{str(student.fio).title()}</b>⬅️\n"
-                if student.id == student_id
-                else f"{index}) {str(student.fio).title()}\n"
-            )
-            index += 1
+    if "base":
+        response_data = {task: len(tasks[task]) for task in tasks.keys()}
+        priority = sorted(response_data, key=response_data.get, reverse=True)
+        response = f"Очередь на следующий понедельник ({next_date.split('-')[2]}.{next_date.split('-')[1]}):\n{teacher}\n"
+        index = 1
+        for task in priority:
+            for student in tasks[task]:
+                response += (
+                    f"{index}) <b>{str(student.fio).title()}</b>⬅️\n"
+                    if student.id == student_id
+                    else f"{index}) {str(student.fio).title()}\n"
+                )
+                index += 1
 
-    return response
+        return response
+    else:
+        keys = list(tasks.keys())
+        keys.sort()
+        queue = []
+        records_copy = records.copy()
+        while records_copy:
+            for task in keys:
+                for record in records_copy:
+                    if record.task == task:
+                        queue.append(record)
+                        records_copy.remove(record)
+
+        response = f'Очередь на следующий понедельник ({datetime.datetime.fromisoformat(next_date).strftime("%d.%m")}):\n{teacher}\n'
+        for record in queue:
+            response += (
+                f"{index}) <b>{str(record.student.fio).title()}</b>⬅️\n"
+                if record.student.id == student_id
+                else f"{index}) {str(record.student.fio).title()}\n"
+            )
+
+        # Отправка по стекам по задачам (по строкам в таблице)
 
 
 async def send_queue(bot: Bot):
@@ -54,7 +80,9 @@ async def send_queue(bot: Bot):
             .all()
         )
         for record in records:
-            response = make_shuffle(records, next_date, teacher, record.student_id)
+            response = make_shuffle(
+                records, next_date, teacher, record.student_id, "not_base"
+            )
             if not config.BOT_MODE:
                 log.debug(
                     f"{record.student.fio} - {record.student.id} - {record.student.is_admin}"
