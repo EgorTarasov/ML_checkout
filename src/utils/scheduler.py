@@ -41,6 +41,7 @@ def make_shuffle(
 
 
 async def send_queue(bot: Bot):
+    log.debug("Запускаем функцию отправки очереди")
     next_date = next_weekday(datetime.datetime.now(), 0).strftime("%Y-%m-%d")
     session = Session()
 
@@ -53,18 +54,20 @@ async def send_queue(bot: Bot):
             .all()
         )
         for record in records:
+            response = make_shuffle(records, next_date, teacher, record.student_id)
             if not config.BOT_MODE:
+                log.debug(
+                    f"{record.student.fio} - {record.student.id} - {record.student.is_admin}"
+                )
                 if record.student.is_admin:
                     await bot.send_message(
                         chat_id=record.student.id,
-                        text=make_shuffle(
-                            records, next_date, teacher, record.student_id
-                        ),
+                        text=response,
                     )
             else:
                 await bot.send_message(
                     chat_id=record.student.id,
-                    text=make_shuffle(records, next_date, teacher, record.student_id),
+                    text=response,
                 )
 
 
@@ -76,7 +79,7 @@ async def add_shuffle_job(bot: Bot, scheduler: AsyncIOScheduler):
     day = day.replace(hour=18, minute=0, second=0)
 
     task_date = (
-        datetime.datetime.now() + datetime.timedelta(seconds=5)
+        datetime.datetime.now() + datetime.timedelta(seconds=10)
         if not config.BOT_MODE
         else day
     )
